@@ -119,3 +119,30 @@ async def add_health_checkup(
     updated_user = await db.users.find_one({"_id": user["_id"]})
     updated_user["_id"] = str(updated_user["_id"])
     return {"success": True, "user": updated_user}
+
+@router.put("/bloodbank-inventory")
+async def update_bloodbank_inventory(
+    inventory_data: dict = Body(...),
+    user: dict = Depends(get_current_user)
+):
+    """
+    Update blood unit inventory for hospitals and blood banks.
+    Expected body: {"availableUnits": {"A+": 10, "B+": 5, ...}}
+    """
+    db = get_database()
+    
+    # Ensure only hospitals and blood banks can update inventory
+    if user.get("role") not in ["hospital", "bloodbank"]:
+        raise HTTPException(status_code=403, detail="Only hospitals and blood banks can manage inventory")
+        
+    available_units = inventory_data.get("availableUnits", {})
+    
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {"$set": {
+            "availableUnits": available_units,
+            "updatedAt": datetime.utcnow()
+        }}
+    )
+    
+    return {"success": True, "message": "Inventory updated successfully"}

@@ -6,6 +6,7 @@ const LiveDonorMap = () => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [donors, setDonors] = useState([]);
+  const [institutions, setInstitutions] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
@@ -23,6 +24,9 @@ const LiveDonorMap = () => {
         
         if (donorsRes.data && donorsRes.data.success) {
           setDonors(donorsRes.data.donors);
+          if (donorsRes.data.institutions) {
+            setInstitutions(donorsRes.data.institutions);
+          }
         }
         if (requestsRes.data && requestsRes.data.success) {
           setRequests(requestsRes.data.requests);
@@ -220,9 +224,58 @@ const LiveDonorMap = () => {
       });
     };
 
+    // Render Institutions (Hospitals & Blood Banks)
+    const renderInstitutions = (targetLayer) => {
+      institutions.forEach((inst) => {
+        if (!inst.coordinates || !inst.coordinates.lat || !inst.coordinates.lng) return;
+        
+        const color = inst.role === 'hospital' ? '#4f46e5' : '#059669';
+        const iconText = inst.role === 'hospital' ? 'H' : 'B';
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+            <rect x="2" y="2" width="28" height="28" rx="6" fill="${color}" stroke="white" stroke-width="2" />
+            <text x="16" y="22" text-anchor="middle" fill="white" font-size="16" font-weight="900" font-family="Outfit, sans-serif">${iconText}</text>
+          </svg>
+        `;
+        const icon = L.divIcon({ html: svg, className: 'inst-marker', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] });
+        
+        let inventoryHtml = '';
+        if (inst.availableUnits && Object.keys(inst.availableUnits).length > 0) {
+          inventoryHtml = '<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px;">';
+          Object.entries(inst.availableUnits).forEach(([bg, count]) => {
+             inventoryHtml += `<div style="text-align:center; background: #f1f5f9; padding: 2px; border-radius: 4px; border: 1px solid #cbd5e1;"><div style="font-size: 10px; font-weight: 900; color: #dc2626;">${bg}</div><div style="font-size: 11px; font-weight: 800; color: #0f172a;">${count}</div></div>`;
+          });
+          inventoryHtml += '</div>';
+        } else {
+          inventoryHtml = '<div style="font-size:10px; color:#64748b; margin-top:4px;">No inventory data available</div>';
+        }
+
+        const name = inst.hospitalName || inst.bloodBankName || inst.name;
+        const typeLabel = inst.role === 'hospital' ? 'Hospital' : 'Blood Bank';
+        const popup = `
+          <div style="font-family:Outfit,sans-serif;min-width:180px;padding:4px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+              <span style="background:${color};color:white;font-weight:800;padding:2px 6px;border-radius:4px;font-size:10px;text-transform:uppercase;">${typeLabel}</span>
+            </div>
+            <div style="font-weight:800;font-size:14px;color:#0f172a;margin-top:4px;">${name}</div>
+            <div style="font-size:11px;color:#64748b;margin-bottom:4px">${inst.location || ''}</div>
+            <div style="font-size:10px;font-weight:800;margin-top:8px;border-top:1px solid #e2e8f0;padding-top:6px;color:#334155;text-transform:uppercase;">Live Blood Inventory:</div>
+            ${inventoryHtml}
+          </div>
+        `;
+
+        const marker = L.marker([inst.coordinates.lat, inst.coordinates.lng], { icon, zIndexOffset: 500 })
+          .bindPopup(popup, { closeButton: true, maxWidth: 260 });
+          
+        targetLayer.addLayer(marker);
+        bounds.push([inst.coordinates.lat, inst.coordinates.lng]);
+      });
+    };
+
     if (viewMode === 'cluster') {
       const clusterGroup = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 50 });
       renderDonors(clusterGroup);
+      renderInstitutions(clusterGroup);
       mapInstanceRef.current.addLayer(clusterGroup);
       layersRef.current.clusterLayer = clusterGroup;
       
@@ -239,8 +292,9 @@ const LiveDonorMap = () => {
     } else if (viewMode === 'radar') {
       const radarGroup = L.layerGroup();
       
-      // Draw non-clustered donors
+      // Draw non-clustered donors and institutions
       renderDonors(radarGroup, true);
+      renderInstitutions(radarGroup);
 
       // Draw Requests, Radar Rings, and Connection Lines
       requests.forEach((req) => {
@@ -301,7 +355,7 @@ const LiveDonorMap = () => {
     if (bounds.length > 0) {
       mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
     }
-  }, [mapReady, donors, requests, viewMode]);
+  }, [mapReady, donors, institutions, requests, viewMode]);
 
   return (
     <div className="space-y-4">
