@@ -231,18 +231,20 @@ const Navbar = () => {
             {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           </button>
           {user && profile?.role !== 'bloodbank' && (
-            <button
-              onClick={toggleAvailability}
-              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                profile?.isAvailable
-                  ? 'border-emerald-400 text-emerald-500 bg-emerald-500/10'
-                  : ''
-              }`}
-              style={profile?.isAvailable ? {} : { background: 'var(--subtle-bg)', borderColor: 'var(--card-border)', color: 'var(--text-muted)' }}
-              title="Toggle Status"
-            >
-              <Activity className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg" style={{ background: 'var(--subtle-bg)', border: '1px solid var(--card-border)' }}>
+              <button
+                onClick={toggleAvailability}
+                className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-300 focus:outline-none cursor-pointer ${
+                  profile?.isAvailable ? 'bg-emerald-500' : 'bg-gray-400'
+                }`}
+                title="Toggle Status"
+              >
+                <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform duration-300 ${profile?.isAvailable ? 'translate-x-4' : 'translate-x-1'}`} />
+              </button>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${profile?.isAvailable ? 'text-emerald-500' : ''}`} style={profile?.isAvailable ? {} : { color: 'var(--text-muted)' }}>
+                {profile?.isAvailable ? 'Available' : 'Busy'}
+              </span>
+            </div>
           )}
         </div>
       </div>
