@@ -59,7 +59,7 @@ const AppContent = () => {
     <Router>
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-grow">
+        <main className="flex-grow pb-20 md:pb-0">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
