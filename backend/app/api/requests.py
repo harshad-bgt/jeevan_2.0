@@ -109,6 +109,23 @@ async def get_my_requests(user: dict = Depends(get_current_user)):
         
     return {"success": True, "requests": requests}
 
+@router.get("/active")
+async def get_active_requests():
+    """
+    Returns all active (pending) blood requests for the public map/feed.
+    No auth required for this endpoint so the homepage can display them.
+    """
+    db = get_database()
+    
+    # Return all pending requests
+    cursor = db.requests.find({"status": "pending"}).sort("createdAt", -1).limit(50)
+    requests = []
+    async for req in cursor:
+        req["_id"] = str(req["_id"])
+        requests.append(req)
+        
+    return {"success": True, "requests": requests}
+
 @router.get("/donor-notifications")
 async def get_donor_notifications(user: dict = Depends(get_current_user)):
     db = get_database()
