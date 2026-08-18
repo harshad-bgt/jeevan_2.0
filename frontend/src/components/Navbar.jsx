@@ -131,7 +131,7 @@ const Navbar = () => {
                   className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl"
                   style={{ background: 'var(--subtle-bg)', border: '1px solid var(--card-border)' }}
                 >
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Live:</span>
+                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Status:</span>
                   <button
                     onClick={toggleAvailability}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 focus:outline-none cursor-pointer ${
@@ -151,7 +151,7 @@ const Navbar = () => {
                     }`}
                     style={profile?.isAvailable ? {} : { color: 'var(--text-muted)' }}
                   >
-                    {profile?.isAvailable ? 'Active' : 'Busy'}
+                    {profile?.isAvailable ? 'Available' : 'Unavailable'}
                   </span>
                 </div>
               )}

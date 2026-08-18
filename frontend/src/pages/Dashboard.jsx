@@ -424,7 +424,7 @@ const Dashboard = () => {
               <h3 className="font-bold text-xs tracking-wide uppercase" style={{ color: 'var(--text-heading)' }}>Emergency Availability</h3>
               <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${user.isAvailable ? 'bg-emerald-500/15 text-emerald-500' : ''}`}
                 style={user.isAvailable ? {} : { background: 'var(--subtle-bg)', color: 'var(--text-muted)', border: '1px solid var(--card-border)' }}
-              >{user.isAvailable ? 'Available' : 'Busy'}</span>
+              >{user.isAvailable ? 'Available' : 'Unavailable'}</span>
             </div>
             <p className="text-xs font-semibold leading-relaxed" style={{ color: 'var(--text-muted)' }}>
               Keep 'Available' active so nearby patients can find you during emergencies.
@@ -437,7 +437,7 @@ const Dashboard = () => {
               style={user.isAvailable ? { background: 'var(--subtle-bg)', border: '1px solid var(--card-border)', color: 'var(--text-heading)' } : {}}
             >
               <Activity className="w-4 h-4" />
-              <span>Mark as {user.isAvailable ? 'Busy' : 'Available'}</span>
+              <span>Mark as {user.isAvailable ? 'Unavailable' : 'Available'}</span>
             </button>
           </div>
         </div>

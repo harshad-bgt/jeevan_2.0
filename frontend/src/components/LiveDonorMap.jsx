@@ -204,7 +204,7 @@ const LiveDonorMap = () => {
         if (!donor.coordinates || !donor.coordinates.lat || !donor.coordinates.lng) return;
 
         const icon = createBloodDropIcon(donor.bloodGroup || 'O+', donor.isAvailable, donor.preliminaryStatus);
-        const availLabel = donor.isAvailable ? '<span style="color:#16a34a;font-weight:700">Available Now</span>' : '<span style="color:#94a3b8;font-weight:700">Busy</span>';
+        const availLabel = donor.isAvailable ? '<span style="color:#16a34a;font-weight:700">Available Now</span>' : '<span style="color:#94a3b8;font-weight:700">Unavailable</span>';
 
         const popup = `
           <div style="font-family:Outfit,sans-serif;min-width:160px;padding:4px 0">
@@ -393,9 +393,9 @@ const LiveDonorMap = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-brand-600 inline-block"></span>
               <span className="text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>Available</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"></span>
-              <span className="text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>Busy</span>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full" style={{ background: 'var(--text-muted)' }}></span>
+              <span className="text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>Unavailable</span>
             </div>
           </div>
         </div>
