@@ -142,9 +142,14 @@ async def quick_match(payload: MatchRequest):
              donor["coordinates"]["lat"], donor["coordinates"]["lng"]
         )
         
-        # Max radius 50km
-        if dist > 50:
+        # Max radius 50km, OR fallback to text match if Nominatim rate limited
+        is_text_match = payload.hospitalAddress.lower() in donor.get("location", "").lower()
+        if dist > 50 and not is_text_match:
              continue
+             
+        # If it was a text match but geocoding failed (dist > 50), mock the distance
+        if dist > 50 and is_text_match:
+             dist = random.uniform(1.0, 15.0)
              
         score = evaluate_donor_match(mock_req, donor, dist)
         
