@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
+from pydantic import BaseModel
 from app.schemas.models import BloodRequestCreate
 from app.config.database import get_database
 from app.middleware.auth import get_current_user
@@ -10,6 +11,10 @@ from datetime import datetime
 from bson import ObjectId
 
 router = APIRouter()
+
+class MatchRequest(BaseModel):
+    bloodGroup: str
+    hospitalAddress: str
 
 @router.post("/create")
 async def create_request(
@@ -95,6 +100,69 @@ async def create_request(
         "message": "Request created and donors notified",
         "requestId": req_id,
         "matchedDonors": matched_donors
+    }
+
+@router.post("/match")
+async def quick_match(payload: MatchRequest):
+    """
+    Simulates finding donors without creating a real request or sending notifications.
+    Used for the Quick Proximity Matcher widget on the Home page.
+    """
+    db = get_database()
+    
+    # Geocode the requested address
+    coords = {"lat": 13.0827, "lng": 80.2707} # default fallback
+    try:
+        coords = await geocode_address(payload.hospitalAddress)
+    except:
+        pass
+        
+    # Mock req_dict to reuse evaluate_donor_match logic
+    mock_req = {
+        "bloodGroup": payload.bloodGroup,
+        "urgency": "High",
+        "unitsRequired": 1,
+        "createdAt": datetime.utcnow()
+    }
+    
+    # Find available donors
+    cursor = db.users.find({
+        "role": "donor",
+        "isAvailable": True,
+        "coordinates": {"$exists": True}
+    })
+    
+    matched_donors = []
+    async for donor in cursor:
+        if not is_blood_compatible(payload.bloodGroup, donor.get("bloodGroup")):
+             continue
+             
+        dist = haversine_distance(
+             coords["lat"], coords["lng"],
+             donor["coordinates"]["lat"], donor["coordinates"]["lng"]
+        )
+        
+        # Max radius 50km
+        if dist > 50:
+             continue
+             
+        score = evaluate_donor_match(mock_req, donor, dist)
+        
+        donor["_id"] = str(donor["_id"])
+        donor["distance"] = round(dist, 2)
+        donor["aiMatchScore"] = score
+        
+        # Clean up sensitive data for public api
+        donor.pop("password", None)
+        
+        matched_donors.append(donor)
+        
+    # Sort by AI score
+    matched_donors.sort(key=lambda x: x["aiMatchScore"], reverse=True)
+    
+    return {
+        "success": True,
+        "matchedDonors": matched_donors[:10]  # Return top 10 matches
     }
 
 @router.get("/my-requests")
