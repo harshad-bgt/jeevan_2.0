@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pymongo
+firebase-admin
+pydantic
+pydantic-settings
+python-dotenv
+motor
+requests
+email-validator
