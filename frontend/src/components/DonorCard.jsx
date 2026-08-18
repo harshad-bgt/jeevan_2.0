@@ -2,7 +2,7 @@ import React from 'react';
 import { MessageSquare, MapPin, Navigation, Clock, Sparkles } from 'lucide-react';
 
 const DonorCard = ({ donor }) => {
-  const { name, bloodGroup, location, distance, lastAvailableChangedAt, whatsappLink, mapLink, aiMatchScore } = donor;
+  const { name, bloodGroup, location, distance, lastAvailableChangedAt, whatsappLink, mapLink, aiMatchScore, phone, coordinates } = donor;
   const isExtremelyClose = distance <= 5.0;
 
   const formatTime = (timeStr) => {
@@ -10,6 +10,13 @@ const DonorCard = ({ donor }) => {
     const date = new Date(timeStr);
     return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
+
+  const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+  const finalWhatsappLink = whatsappLink || (cleanPhone ? `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Hi ${name}, I am reaching out to you from Jeevan 2.0 regarding a blood donation request.`)}` : '#');
+  
+  const finalMapLink = mapLink || (coordinates?.lat && coordinates?.lng 
+    ? `https://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}` 
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location || '')}`);
 
   return (
     <div
@@ -63,12 +70,13 @@ const DonorCard = ({ donor }) => {
 
       {/* ACTIONS */}
       <div className="grid grid-cols-2 gap-2.5">
-        <a href={mapLink} target="_blank" rel="noopener noreferrer"
+        <a href={finalMapLink} target="_blank" rel="noopener noreferrer"
           className="flex items-center justify-center gap-1.5 text-xs font-semibold py-2.5 rounded-xl transition-all"
           style={{ background: 'var(--subtle-bg)', border: '1px solid var(--card-border)', color: 'var(--text-heading)' }}>
           <Navigation className="w-3.5 h-3.5 text-sky-500" /><span>Google Map</span>
         </a>
-        <a href={whatsappLink} target="_blank" rel="noopener noreferrer"
+        <a href={finalWhatsappLink} target="_blank" rel="noopener noreferrer"
+          onClick={(e) => { if (finalWhatsappLink === '#') { e.preventDefault(); alert('Phone number not available for this donor.'); } }}
           className="flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-xl transition-all shadow-sm">
           <MessageSquare className="w-3.5 h-3.5 fill-current" /><span>WhatsApp</span>
         </a>
