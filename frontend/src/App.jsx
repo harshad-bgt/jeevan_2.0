@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import MobileBottomNav from './components/MobileBottomNav';
 
 // Import Pages
 import Home from './pages/Home';
@@ -111,7 +112,10 @@ const AppContent = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
-        <Footer />
+        <div className="hidden md:block">
+          <Footer />
+        </div>
+        <MobileBottomNav />
       </div>
     </Router>
   );

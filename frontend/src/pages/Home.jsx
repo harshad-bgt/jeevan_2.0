@@ -58,7 +58,7 @@ const Home = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 space-y-20">
+    <div className="max-w-7xl mx-auto px-6 py-6 space-y-12 md:py-12 md:space-y-20">
       {/* HERO SECTION */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-4">
         <div className="lg:col-span-7 space-y-6">

@@ -47,10 +47,9 @@ const Navbar = () => {
         {/* LOGO */}
         <Link to="/" className="flex items-center gap-2 group">
           <div
-            className="p-2 rounded-xl group-hover:scale-105 transition-all duration-300"
-            style={{ background: theme === 'dark' ? 'rgba(220,38,38,0.15)' : '#fff5f5' }}
+            className="w-10 h-10 rounded-xl group-hover:scale-105 transition-all duration-300 flex items-center justify-center overflow-hidden bg-white/10"
           >
-            <Droplet className="w-5.5 h-5.5 text-brand-600 fill-brand-600 animate-heartbeat" />
+            <img src="/logo.png" alt="Jeevan Logo" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-black tracking-wider leading-none" style={{ color: 'var(--text-heading)' }}>
@@ -221,7 +220,7 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* MOBILE MENU BUTTON */}
+        {/* MOBILE MENU BUTTON - Replaced by MobileBottomNav, just keep Theme/Live toggle on top right */}
         <div className="md:hidden flex items-center gap-3">
           <button
             onClick={toggleTheme}
@@ -245,57 +244,9 @@ const Navbar = () => {
               <Activity className="w-4 h-4" />
             </button>
           )}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="focus:outline-none cursor-pointer"
-            style={{ color: 'var(--text-heading)' }}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
       </div>
 
-      {/* MOBILE DRAWER */}
-      {mobileMenuOpen && (
-        <div
-          className="md:hidden absolute top-full left-0 w-full py-4 px-6 flex flex-col gap-4 shadow-xl z-50 border-b"
-          style={{ background: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
-        >
-          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="font-semibold py-1" style={{ color: 'var(--text-heading)' }}>Home</Link>
-          {user ? (
-            <>
-              <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="font-semibold py-1" style={{ color: 'var(--text-heading)' }}>Dashboard</Link>
-              <Link to="/create-request" onClick={() => setMobileMenuOpen(false)} className="font-semibold py-1" style={{ color: 'var(--text-heading)' }}>Request Blood</Link>
-              {profile?.role === 'admin' && (
-                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="font-semibold py-1" style={{ color: 'var(--text-heading)' }}>Admin Panel</Link>
-              )}
-              <div className="h-px" style={{ background: 'var(--card-border)' }} />
-              {profile?.role !== 'bloodbank' && (
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>Available to Donate:</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${profile?.isAvailable ? 'bg-emerald-500/15 text-emerald-500' : ''}`}
-                    style={profile?.isAvailable ? {} : { background: 'var(--subtle-bg)', color: 'var(--text-muted)' }}
-                  >
-                    {profile?.isAvailable ? 'ACTIVE' : 'INACTIVE'}
-                  </span>
-                </div>
-              )}
-              <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-1 font-semibold" style={{ color: 'var(--text-heading)' }}>
-                <User className="w-4 h-4" style={{ color: 'var(--text-muted)' }} /> My Profile
-              </Link>
-              <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="flex items-center gap-2 text-brand-600 hover:text-brand-700 py-1 text-left font-bold cursor-pointer">
-                <LogOut className="w-4 h-4 text-brand-500" /> Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="h-px" style={{ background: 'var(--card-border)' }} />
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="font-semibold py-1 text-center" style={{ color: 'var(--text-heading)' }}>Login</Link>
-              <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="bg-brand-600 hover:bg-brand-700 text-white text-center font-bold py-2.5 rounded-xl">Join Jeevan 2.0</Link>
-            </>
-          )}
-        </div>
-      )}
     </nav>
   );
 };

@@ -1,0 +1,6 @@
+{
+  "appId": "com.jeevan.app",
+  "appName": "Jeevan 2.0",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
