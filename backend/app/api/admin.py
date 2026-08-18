@@ -50,3 +50,30 @@ async def get_all_requests(
         requests.append(req)
         
     return {"success": True, "data": requests}
+
+@router.get("/summary")
+async def get_admin_summary(
+    user: dict = Depends(get_current_user)
+):
+    """
+    Returns quick counts for admin dashboard KPI cards.
+    """
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to access admin resources")
+        
+    db = get_database()
+    
+    donors_count = await db.users.count_documents({"role": "donor"})
+    hospitals_count = await db.users.count_documents({"role": "hospital"})
+    bloodbanks_count = await db.users.count_documents({"role": "bloodbank"})
+    active_requests_count = await db.requests.count_documents({"status": "pending"})
+    
+    return {
+        "success": True, 
+        "summary": {
+            "donors": donors_count,
+            "hospitals": hospitals_count,
+            "bloodBanks": bloodbanks_count,
+            "activeRequests": active_requests_count
+        }
+    }
